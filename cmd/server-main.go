@@ -246,8 +246,6 @@ func configRetriableErrors(err error) bool {
 }
 
 func initServer(ctx context.Context, newObject ObjectLayer) error {
-	// Once the config is fully loaded, initialize the new object layer.
-	setObjectLayer(newObject)
 
 	// Make sure to hold lock for entire migration to avoid
 	// such that only one server should migrate the entire config
@@ -596,17 +594,22 @@ func ServerMainForJFS(ctx *cli.Context, jfs ObjectLayer) {
 	//initBackgroundExpiry(GlobalContext, jfs)
 	//initDataScanner(GlobalContext, jfs)
 
-	if err = initServer(GlobalContext, jfs); err != nil {
-		var cerr config.Err
-		// For any config error, we don't need to drop into safe-mode
-		// instead its a user error and should be fixed by user.
-		if errors.As(err, &cerr) {
-			logger.FatalIf(err, "Unable to initialize the server")
-		}
+	// Once the config is fully loaded, initialize the new object layer.
+	setObjectLayer(jfs)
 
-		// If context was canceled
-		if errors.Is(err, context.Canceled) {
-			logger.FatalIf(err, "Server startup canceled upon user request")
+	if os.Getenv("JUICEFS_META_READ_ONLY") == "" {
+		if err = initServer(GlobalContext, jfs); err != nil {
+			var cerr config.Err
+			// For any config error, we don't need to drop into safe-mode
+			// instead its a user error and should be fixed by user.
+			if errors.As(err, &cerr) {
+				logger.FatalIf(err, "Unable to initialize the server")
+			}
+
+			// If context was canceled
+			if errors.Is(err, context.Canceled) {
+				logger.FatalIf(err, "Server startup canceled upon user request")
+			}
 		}
 	}
 
@@ -619,8 +622,10 @@ func ServerMainForJFS(ctx *cli.Context, jfs ObjectLayer) {
 		setCacheObjectLayer(cacheAPI)
 	}
 
-	// Initialize users credentials and policies in background right after config has initialized.
-	go globalIAMSys.Init(GlobalContext, jfs)
+	if os.Getenv("JUICEFS_META_READ_ONLY") == "" {
+		// Initialize users credentials and policies in background right after config has initialized.
+		go globalIAMSys.Init(GlobalContext, jfs)
+	}
 
 	// Prints the formatted startup message, if err is not nil then it prints additional information as well.
 	printStartupMessage(getAPIEndpoints(), err)

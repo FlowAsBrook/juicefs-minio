@@ -18,14 +18,12 @@ package cmd
 
 import (
 	"context"
-	"fmt"
 	"net/http"
 	"regexp"
 	"strconv"
 	"time"
 
 	xhttp "github.com/minio/minio/cmd/http"
-	"github.com/minio/minio/pkg/bucket/lifecycle"
 )
 
 var (
@@ -256,24 +254,6 @@ func setPutObjHeaders(w http.ResponseWriter, objInfo ObjectInfo, delete bool) {
 		// If version is a deleted marker, set this header as well
 		if objInfo.DeleteMarker && delete { // only returned during delete object
 			w.Header()[xhttp.AmzDeleteMarker] = []string{strconv.FormatBool(objInfo.DeleteMarker)}
-		}
-	}
-
-	if objInfo.Bucket != "" && objInfo.Name != "" {
-		if lc, err := globalLifecycleSys.Get(objInfo.Bucket); err == nil && !delete {
-			ruleID, expiryTime := lc.PredictExpiryTime(lifecycle.ObjectOpts{
-				Name:         objInfo.Name,
-				UserTags:     objInfo.UserTags,
-				VersionID:    objInfo.VersionID,
-				ModTime:      objInfo.ModTime,
-				IsLatest:     objInfo.IsLatest,
-				DeleteMarker: objInfo.DeleteMarker,
-			})
-			if !expiryTime.IsZero() {
-				w.Header()[xhttp.AmzExpiration] = []string{
-					fmt.Sprintf(`expiry-date="%s", rule-id="%s"`, expiryTime.Format(http.TimeFormat), ruleID),
-				}
-			}
 		}
 	}
 }
