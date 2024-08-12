@@ -179,9 +179,13 @@ func newHTTPListener(serverAddrs []string) (listener *httpListener, err error) {
 	}()
 
 	for _, serverAddr := range serverAddrs {
+		fmt.Printf("newHTTPListener %s\n", serverAddr)
 		var l net.Listener
 		if l, err = listen("tcp", serverAddr); err != nil {
+			fmt.Printf("newHTTPListener %s listen error %s\n", serverAddr, err)
+			fmt.Printf("start fallbackListen %s \n", serverAddr)
 			if l, err = fallbackListen("tcp", serverAddr); err != nil {
+				fmt.Printf("newHTTPListener %s fallbackListen error %s\n", serverAddr, err)
 				return nil, err
 			}
 		}

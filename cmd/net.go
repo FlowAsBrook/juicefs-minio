@@ -190,12 +190,15 @@ func isHostIP(ipAddress string) bool {
 // It is possible to have a disconnected client in this tiny window of time.
 func checkPortAvailability(host, port string) (err error) {
 	l, err := net.Listen("tcp", net.JoinHostPort(host, port))
+	logger.Info("checkPortAvailability %s %s %v", host, port, err)
 	if err != nil {
 		return err
 	}
 	// As we are able to listen on this network, the port is not in use.
 	// Close the listener and continue check other networks.
-	return l.Close()
+	err = l.Close()
+	logger.Info("checkPortAvailability close error %s", err)
+	return
 }
 
 // extractHostPort - extracts host/port from many address formats
@@ -288,7 +291,8 @@ func isLocalHost(host string, port string, localPort string) (bool, error) {
 
 // sameLocalAddrs - returns true if two addresses, even with different
 // formats, point to the same machine, e.g:
-//  ':9000' and 'http://localhost:9000/' will return true
+//
+//	':9000' and 'http://localhost:9000/' will return true
 func sameLocalAddrs(addr1, addr2 string) (bool, error) {
 
 	// Extract host & port from given parameters

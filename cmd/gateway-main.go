@@ -284,7 +284,9 @@ func StartGateway(ctx *cli.Context, gw Gateway) {
 		return GlobalContext
 	}
 	go func() {
-		globalHTTPServerErrorCh <- httpServer.Start()
+		err2 := httpServer.Start()
+		logger.Info("http server start error %s", err2)
+		globalHTTPServerErrorCh <- err2
 	}()
 
 	globalObjLayerMutex.Lock()
