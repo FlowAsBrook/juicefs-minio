@@ -23,6 +23,7 @@ import (
 	"os"
 	"sync"
 	"syscall"
+	"time"
 )
 
 type acceptResult struct {
@@ -194,7 +195,8 @@ func newHTTPListener(serverAddrs []string) (listener *httpListener, err error) {
 		if !ok {
 			return nil, fmt.Errorf("unexpected listener type found %v, expected net.TCPListener", l)
 		}
-
+		fmt.Printf("listener success %s\n", tcpListener.Addr().String())
+		time.Sleep(1 * time.Minute)
 		tcpListeners = append(tcpListeners, tcpListener)
 	}
 
