@@ -30,9 +30,6 @@ import (
 	xnet "github.com/minio/minio/pkg/net"
 )
 
-// IPv4 addresses of local host.
-var localIP4 = mustGetLocalIP4()
-
 // mustSplitHostPort is a wrapper to net.SplitHostPort() where error is assumed to be a fatal.
 func mustSplitHostPort(hostPort string) (host, port string) {
 	xh, err := xnet.ParseHost(hostPort)
@@ -288,7 +285,8 @@ func isLocalHost(host string, port string, localPort string) (bool, error) {
 
 // sameLocalAddrs - returns true if two addresses, even with different
 // formats, point to the same machine, e.g:
-//  ':9000' and 'http://localhost:9000/' will return true
+//
+//	':9000' and 'http://localhost:9000/' will return true
 func sameLocalAddrs(addr1, addr2 string) (bool, error) {
 
 	// Extract host & port from given parameters

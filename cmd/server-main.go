@@ -21,7 +21,6 @@ import (
 	"crypto/tls"
 	"errors"
 	"fmt"
-	"github.com/minio/minio/pkg/fips"
 	"math/rand"
 	"net"
 	"os"
@@ -30,6 +29,8 @@ import (
 	"sync"
 	"syscall"
 	"time"
+
+	"github.com/minio/minio/pkg/fips"
 
 	"github.com/minio/cli"
 	"github.com/minio/minio/cmd/config"
@@ -394,7 +395,7 @@ func serverMain(ctx *cli.Context) {
 	globalMinioEndpoint = func() string {
 		host := globalMinioHost
 		if host == "" {
-			host = sortIPs(localIP4.ToSlice())[0]
+			host = sortIPs(mustGetLocalIP4().ToSlice())[0]
 		}
 		return fmt.Sprintf("%s://%s", getURLScheme(globalIsTLS), net.JoinHostPort(host, globalMinioPort))
 	}()
@@ -562,7 +563,7 @@ func ServerMainForJFS(ctx *cli.Context, jfs ObjectLayer) {
 	globalMinioEndpoint = func() string {
 		host := globalMinioHost
 		if host == "" {
-			host = sortIPs(localIP4.ToSlice())[0]
+			host = sortIPs(mustGetLocalIP4().ToSlice())[0]
 		}
 		return fmt.Sprintf("%s://%s", getURLScheme(globalIsTLS), net.JoinHostPort(host, globalMinioPort))
 	}()
