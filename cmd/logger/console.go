@@ -56,8 +56,12 @@ func Fatal(err error, msg string, data ...interface{}) {
 
 func fatal(err error, msg string, data ...interface{}) {
 	var errMsg string
-	if msg != "" {
-		errMsg = errorFmtFunc(fmt.Sprintf(msg, data...), err, jsonFlag)
+	if msg != "" && errorFmtFunc != nil {
+		if errorFmtFunc != nil {
+			errMsg = errorFmtFunc(fmt.Sprintf(msg, data...), err, jsonFlag)
+		} else {
+			errMsg = fmt.Sprintf("%s: %s", fmt.Sprintf(msg, data...), err.Error())
+		}
 	} else {
 		errMsg = err.Error()
 	}
