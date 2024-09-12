@@ -101,7 +101,7 @@ func listDirFactory(ctx context.Context, disk StorageAPI, isLeaf IsLeafFunc) Lis
 		if len(names) == 0 {
 			return true, nil, false
 		}
-		entries := make([]*Entry, len(names))
+		entries := make([]*Entry, 0, len(names))
 		for _, name := range names {
 			entries = append(entries, &Entry{
 				Name: name,
