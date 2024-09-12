@@ -1328,10 +1328,10 @@ func (fs *FSObjects) listDirFactory() ListDirFunc {
 			return true, nil, false
 		}
 		entries = make([]*Entry, len(names))
-		for _, name := range names {
-			entries = append(entries, &Entry{
+		for i, name := range names {
+			entries[i] = &Entry{
 				Name: name,
-			})
+			}
 		}
 		entries, delayIsLeaf = filterListEntries(bucket, prefixDir, entries, prefixEntry, fs.isLeaf)
 		return false, entries, delayIsLeaf

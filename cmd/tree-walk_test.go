@@ -102,10 +102,10 @@ func listDirFactory(ctx context.Context, disk StorageAPI, isLeaf IsLeafFunc) Lis
 			return true, nil, false
 		}
 		entries := make([]*Entry, len(names))
-		for _, name := range names {
-			entries = append(entries, &Entry{
+		for i, name := range names {
+			entries[i] = &Entry{
 				Name: name,
-			})
+			}
 		}
 		entries, delayIsLeaf = filterListEntries(volume, dirPath, entries, dirEntry, isLeaf)
 		for _, e := range entries {
